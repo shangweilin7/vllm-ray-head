@@ -1,0 +1,5 @@
+.env*
+
+# vLLM runtime cache
+vllm-cache/
+nhf-cache/
