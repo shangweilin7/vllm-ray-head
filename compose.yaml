@@ -2,7 +2,7 @@ name: vllm-ray-head
 
 services:
   ray-head:
-    image: vllm-openai-ray:v0.27.0-sm121-dspark
+    image: vllm-openai-ray:v0.27.1-sm121-dspark
     build:
       context: .
       dockerfile: Dockerfile

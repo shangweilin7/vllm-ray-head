@@ -1,7 +1,7 @@
-# vLLM 0.27.0 for DeepSeek-V4-Flash-0731 on NVIDIA GB10 / SM121.
+# vLLM 0.27.1 for DeepSeek-V4-Flash-0731 on NVIDIA GB10 / SM121.
 # Includes: #50796 DeepGEMM pin, #51835 DSpark quantization fix,
 # and the SM121 sparse-SWA topk dispatch workaround.
-FROM vllm/vllm-openai:v0.27.0
+FROM vllm/vllm-openai:v0.27.1
 
 ARG DEEPGEMM_REF=2fd67329ec2942f65ba35d561256ab6ed3b903cb
 
@@ -35,7 +35,7 @@ import vllm
 from vllm.config.speculative import SpeculativeConfig
 from vllm.v1.attention.backends.mla.sparse_swa import _round_up_to_supported_topk
 
-assert vllm.__version__ == "0.27.0", vllm.__version__
+assert vllm.__version__ == "0.27.1", vllm.__version__
 assert _round_up_to_supported_topk(256) == 512
 assert "deepseek_v4_fp8" in SpeculativeConfig.__post_init__.__code__.co_consts
 print("vLLM", vllm.__version__)
