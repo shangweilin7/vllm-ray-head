@@ -87,4 +87,6 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --block-size 256 \
   --enable-prefix-caching \
   --enable-chunked-prefill \
-  --trust-remote-code
+  --trust-remote-code \
+  --enable-auto-tool-choice \
+  --tool-call-parser deepseek_v4
