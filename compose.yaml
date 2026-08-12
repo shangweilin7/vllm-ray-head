@@ -37,6 +37,7 @@ services:
       # Required on SM121: retain DeepGEMM; never set VLLM_USE_DEEP_GEMM=0.
       VLLM_USE_BREAKABLE_CUDAGRAPH: "0"
       VLLM_DEEP_GEMM_WARMUP: full
+      PP_PARTITION: ${PP_PARTITION}
 
     volumes:
       - ${HOME}/.cache/huggingface:/root/.cache/huggingface
