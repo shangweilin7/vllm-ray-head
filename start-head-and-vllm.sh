@@ -9,7 +9,9 @@ unset VLLM_USE_DEEP_GEMM || true
 export VLLM_USE_BREAKABLE_CUDAGRAPH=0
 export VLLM_DEEP_GEMM_WARMUP=full
 
-SPECULATIVE_CONFIG='{"method":"dspark","model":"deepseek-ai/DeepSeek-V4-Flash-0731","num_speculative_tokens":5}'
+# The first PP=2 validation intentionally runs without DSpark. The DSpark
+# draft model does not implement SupportsPP in vLLM 0.27.1.
+# Keep #51835 and the sparse-SWA patch in the image for a later TP topology test.
 
 echo "[1/4] Cleaning stale Ray session..."
 ray stop --force >/dev/null 2>&1 || true
@@ -64,7 +66,7 @@ while True:
     time.sleep(5)
 PY
 
-echo "[4/4] Starting vLLM API with DSpark..."
+echo "[4/4] Starting vLLM API without DSpark (PP=2 validation)..."
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
@@ -81,5 +83,4 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --block-size 256 \
   --enable-prefix-caching \
   --enable-chunked-prefill \
-  --trust-remote-code \
-  --speculative-config "${SPECULATIVE_CONFIG}"
+  --trust-remote-code
