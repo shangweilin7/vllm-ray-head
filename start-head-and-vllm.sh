@@ -9,10 +9,9 @@ unset VLLM_USE_DEEP_GEMM || true
 export VLLM_USE_BREAKABLE_CUDAGRAPH=0
 export VLLM_DEEP_GEMM_WARMUP=full
 
-# PP_PARTITION is deployment-facing; vLLM consumes VLLM_PP_LAYER_PARTITION.
-# Require an explicit value so both Ray ranks receive the same layer split.
-: "${PP_PARTITION:?PP_PARTITION must be set, e.g. 14,29}"
-export VLLM_PP_LAYER_PARTITION="${PP_PARTITION}"
+# Require the vLLM-native partition variable explicitly.
+: "${VLLM_PP_LAYER_PARTITION:?VLLM_PP_LAYER_PARTITION must be set, e.g. 14,29}"
+export VLLM_PP_LAYER_PARTITION
 
 # The first PP=2 validation intentionally runs without DSpark. The DSpark
 # draft model does not implement SupportsPP in vLLM 0.27.1.
