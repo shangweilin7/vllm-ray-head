@@ -79,8 +79,8 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --tensor-parallel-size 1 \
   --pipeline-parallel-size 2 \
   --gpu-memory-utilization 0.85 \
-  --kv-cache-memory 7516192768 \
-  --max-model-len 262144 \
+  --kv-cache-memory 5734389760 \
+  --max-model-len 200000 \
   --max-num-seqs 4 \
   --max-num-batched-tokens 4096 \
   --kv-cache-dtype fp8_ds_mla \
@@ -89,4 +89,6 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --enable-chunked-prefill \
   --trust-remote-code \
   --enable-auto-tool-choice \
-  --tool-call-parser deepseek_v4
+  --tool-call-parser deepseek_v4 \
+  --reasoning-parser deepseek_v4 \
+  --reasoning-config '{"reasoning_parser":"deepseek_v4","reasoning_start_str":"","reasoning_end_str":""}'
