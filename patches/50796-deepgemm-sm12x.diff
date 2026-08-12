@@ -1,0 +1,30 @@
+diff --git a/cmake/external_projects/deepgemm.cmake b/cmake/external_projects/deepgemm.cmake
+index be0eccd45aed..906d11962afa 100644
+--- a/cmake/external_projects/deepgemm.cmake
++++ b/cmake/external_projects/deepgemm.cmake
+@@ -29,8 +29,8 @@ if(DEEPGEMM_SRC_DIR)
+ else()
+   # Keep in sync with tools/install_deepgemm.sh
+   set(_DEEPGEMM_UPSTREAM_REPO "https://github.com/vllm-project/DeepGEMM.git")
+-  # TODO: switch to nv_dev branch after it support situ
+-  set(_DEEPGEMM_UPSTREAM_TAG "e21c821f39a2056d68067a466c64ddc942200106")
++  # Merge nv-dev SM120 support with SITU activation support.
++  set(_DEEPGEMM_UPSTREAM_TAG "2fd67329ec2942f65ba35d561256ab6ed3b903cb")
+ 
+   set(_deepgemm_fc_root "${FETCHCONTENT_BASE_DIR}")
+   if(NOT _deepgemm_fc_root)
+diff --git a/tools/install_deepgemm.sh b/tools/install_deepgemm.sh
+index 3f80ab567302..a05f5a7cc5e5 100755
+--- a/tools/install_deepgemm.sh
++++ b/tools/install_deepgemm.sh
+@@ -7,8 +7,8 @@ set -e
+ # Default values
+ # Keep DEEPGEMM_GIT_REF in sync with cmake/external_projects/deepgemm.cmake
+ DEEPGEMM_GIT_REPO="https://github.com/vllm-project/DeepGEMM.git"
+-# NOTE: This is currently targeting nv-dev branch due to sm120 support
+-DEEPGEMM_GIT_REF="e21c821f39a2056d68067a466c64ddc942200106"
++# Merge nv-dev SM120 support with SITU activation support.
++DEEPGEMM_GIT_REF="2fd67329ec2942f65ba35d561256ab6ed3b903cb"
+ WHEEL_DIR=""
+ 
+ # Parse command line arguments

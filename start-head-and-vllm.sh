@@ -3,6 +3,14 @@ set -euo pipefail
 
 HEAD_ADDRESS="${HEAD_IP}:6379"
 
+# SM121 requirement: DeepGEMM must remain enabled. Do not export
+# VLLM_USE_DEEP_GEMM=0; that forces the unsupported CUTLASS fallback.
+unset VLLM_USE_DEEP_GEMM || true
+export VLLM_USE_BREAKABLE_CUDAGRAPH=0
+export VLLM_DEEP_GEMM_WARMUP=full
+
+SPECULATIVE_CONFIG='{"method":"dspark","model":"deepseek-ai/DeepSeek-V4-Flash-0731","num_speculative_tokens":5}'
+
 echo "[1/4] Cleaning stale Ray session..."
 ray stop --force >/dev/null 2>&1 || true
 
@@ -56,7 +64,7 @@ while True:
     time.sleep(5)
 PY
 
-echo "[4/4] Starting vLLM API..."
+echo "[4/4] Starting vLLM API with DSpark..."
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
@@ -73,4 +81,5 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --block-size 256 \
   --enable-prefix-caching \
   --enable-chunked-prefill \
-  --trust-remote-code
+  --trust-remote-code \
+  --speculative-config "${SPECULATIVE_CONFIG}"

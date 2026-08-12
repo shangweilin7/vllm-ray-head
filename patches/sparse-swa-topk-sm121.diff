@@ -1,0 +1,32 @@
+--- a/vllm/v1/attention/backends/mla/sparse_swa.py
++++ b/vllm/v1/attention/backends/mla/sparse_swa.py
+@@ -53,6 +53,16 @@
+     )
+ 
+ 
++def _round_up_to_supported_topk(topk: int) -> int:
++    """Round DSpark sparse-SWA index width to FlashInfer SM12x dispatch sizes."""
++    for supported_topk in (128, 512, 1024):
++        if topk <= supported_topk:
++            return supported_topk
++    raise ValueError(
++        f"Unsupported DSpark sparse-SWA topk={topk}; maximum supported is 1024."
++    )
++
++
+ class DeepseekV4SWACache(torch.nn.Module, AttentionLayerBase):
+     def __init__(
+         self,
+@@ -484,8 +494,11 @@
+         # the q-head count to B_TOPK (64/128), which requires the index width to be
+         # a multiple of 128.
+         self.is_dspark = spec_config is not None and spec_config.use_dspark()
+-        self.noncausal_index_width = (
++        raw_noncausal_index_width = (
+             cdiv(self.window_size + self.num_speculative_tokens, 128) * 128
++        )
++        self.noncausal_index_width = (
++            _round_up_to_supported_topk(raw_noncausal_index_width)
+             if self.is_dspark
+             else 0
+         )

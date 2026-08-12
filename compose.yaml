@@ -2,7 +2,7 @@ name: vllm-ray-head
 
 services:
   ray-head:
-    image: vllm-openai-ray:v0.26.0
+    image: vllm-openai-ray:v0.27.0-sm121-dspark
     build:
       context: .
       dockerfile: Dockerfile
@@ -28,14 +28,15 @@ services:
       NODE_IP: ${NODE_IP}
       HEAD_IP: ${HEAD_IP}
       ROCE_IFACE: ${ROCE_IFACE}
-      # PP_PARTITION: ${PP_PARTITION}
       NCCL_SOCKET_IFNAME: ${ROCE_IFACE}
       GLOO_SOCKET_IFNAME: ${ROCE_IFACE}
       VLLM_HOST_IP: ${NODE_IP}
-      # VLLM_PP_LAYER_PARTITION: ${PP_PARTITION}
       RAY_ADDRESS: ${HEAD_IP}:6379
       RAY_memory_monitor_refresh_ms: "0"
       PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
+      # Required on SM121: retain DeepGEMM; never set VLLM_USE_DEEP_GEMM=0.
+      VLLM_USE_BREAKABLE_CUDAGRAPH: "0"
+      VLLM_DEEP_GEMM_WARMUP: full
 
     volumes:
       - ${HOME}/.cache/huggingface:/root/.cache/huggingface
