@@ -84,6 +84,8 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --max-num-seqs 4 \
   --max-num-batched-tokens 4096 \
   --kv-cache-dtype fp8_ds_mla \
+  --no-disable-hybrid-kv-cache-manager \
+  --tokenizer-mode deepseek_v4 \
   --block-size 256 \
   --enable-prefix-caching \
   --enable-chunked-prefill \
