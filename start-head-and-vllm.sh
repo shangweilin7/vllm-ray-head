@@ -49,7 +49,7 @@ while True:
     time.sleep(5)
 PY
 
-printf '%s\n' '[4/4] Starting official vLLM v0.28.0 with DSpark...'
+printf '%s\n' '[4/4] Starting official vLLM v0.28.0 with original serving parameters...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
@@ -66,5 +66,4 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --block-size 256 \
   --enable-prefix-caching \
   --enable-chunked-prefill \
-  --trust-remote-code \
-  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic"}'
+  --trust-remote-code
