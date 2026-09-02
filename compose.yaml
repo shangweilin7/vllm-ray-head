@@ -32,12 +32,13 @@ services:
       NCCL_SOCKET_IFNAME: ${ROCE_IFACE:?Set ROCE_IFACE to the RoCE NIC name}
       GLOO_SOCKET_IFNAME: ${ROCE_IFACE:?Set ROCE_IFACE to the RoCE NIC name}
       VLLM_HOST_IP: ${NODE_IP}
+      VLLM_PP_LAYER_PARTITION: ${VLLM_PP_LAYER_PARTITION:?Set VLLM_PP_LAYER_PARTITION for PP=2}
       RAY_ADDRESS: ${HEAD_IP}:6379
       RAY_memory_monitor_refresh_ms: "0"
       PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
     volumes:
-      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
-      - ${HOME}/vllm-cache:/root/.cache/vllm
+      - ${HOST_HOME:?Set HOST_HOME to this host's home directory}/.cache/huggingface:/root/.cache/huggingface
+      - ${HOST_HOME:?Set HOST_HOME to this host's home directory}/vllm-cache:/root/.cache/vllm
       - ./start-head-and-vllm.sh:/usr/local/bin/start-head-and-vllm.sh:ro
     entrypoint:
       - /usr/local/bin/start-head-and-vllm.sh
