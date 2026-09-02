@@ -49,7 +49,10 @@ while True:
     time.sleep(5)
 PY
 
-printf '%s\n' '[4/4] Starting official vLLM v0.28.0 with DSpark on TP=2...'
+# vLLM v0.28.0's bundled FlashInfer lacks the required SM120/121 DSV4
+# sparse-MLA decode specialization (flashinfer#4380). Keep DSpark disabled
+# until an official vLLM image includes that specialization.
+printf '%s\n' '[4/4] Starting official vLLM v0.28.0 without DSpark on TP=2...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
@@ -68,5 +71,4 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --tool-call-parser deepseek_v4 \
   --enable-auto-tool-choice \
   --reasoning-parser deepseek_v4 \
-  --reasoning-config '{"reasoning_parser":"deepseek_v4","reasoning_start_str":"","reasoning_end_str":""}' \
-  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic"}'
+  --reasoning-config '{"reasoning_parser":"deepseek_v4","reasoning_start_str":"","reasoning_end_str":""}'
