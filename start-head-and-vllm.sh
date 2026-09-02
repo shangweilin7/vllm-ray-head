@@ -49,26 +49,22 @@ while True:
     time.sleep(5)
 PY
 
-# vLLM v0.28.0's bundled FlashInfer lacks the required SM120/121 DSV4
-# sparse-MLA decode specialization (flashinfer#4380). Keep DSpark disabled
-# until an official vLLM image includes that specialization.
-printf '%s\n' '[4/4] Starting official vLLM v0.28.0 without DSpark on TP=2...'
+printf '%s\n' '[4/4] Starting official vLLM v0.28.0 with DSpark...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
   --port 8000 \
   --distributed-executor-backend ray \
-  --tensor-parallel-size 2 \
+  --tensor-parallel-size 1 \
+  --pipeline-parallel-size 2 \
   --gpu-memory-utilization 0.85 \
-  --kv-cache-dtype fp8 \
+  --kv-cache-memory 7516192768 \
+  --max-model-len 262144 \
+  --max-num-seqs 4 \
+  --max-num-batched-tokens 2048 \
+  --kv-cache-dtype fp8_ds_mla \
   --block-size 256 \
-  --max-model-len auto \
-  --max-num-seqs 8 \
-  --max-num-batched-tokens 8192 \
   --enable-prefix-caching \
+  --enable-chunked-prefill \
   --trust-remote-code \
-  --tokenizer-mode deepseek_v4 \
-  --tool-call-parser deepseek_v4 \
-  --enable-auto-tool-choice \
-  --reasoning-parser deepseek_v4 \
-  --reasoning-config '{"reasoning_parser":"deepseek_v4","reasoning_start_str":"","reasoning_end_str":""}'
+  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic"}'
