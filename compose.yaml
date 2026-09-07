@@ -1,14 +1,10 @@
 name: vllm-ray-head
 
-# Official vLLM v0.28.0 multi-arch manifest, pinned for reproducibility.
+# eugr DGX-Spark optimized vLLM nightly (B12X build), pulled prebuilt.
+# Prebuilt image includes Ray 2.58.0 (required by --distributed-executor-backend ray).
 services:
   ray-head:
-    # Derived solely from the pinned official image; adds the Ray dependency
-    # required by --distributed-executor-backend ray.
-    image: vllm-openai-ray:v0.28.0-ray2.58.0
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: eugr/spark-vllm-b12x:latest
     container_name: deepseek-v4-ray-head
     restart: unless-stopped
     network_mode: host
