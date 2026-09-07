@@ -49,25 +49,31 @@ while True:
     time.sleep(5)
 PY
 
-printf '%s\n' '[4/4] Starting official vLLM v0.28.0 with original serving parameters...'
+printf '%s\n' '[4/4] Starting eugr B12X vLLM (DeepSeek V4 Flash 0731, TP=2, DSpark)...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
   --port 8000 \
   --distributed-executor-backend ray \
-  --tensor-parallel-size 1 \
-  --pipeline-parallel-size 2 \
+  --tensor-parallel-size 2 \
   --gpu-memory-utilization 0.85 \
-  --kv-cache-memory-bytes 7516192768 \
-  --moe-backend auto \
-  --max-model-len 262144 \
-  --max-num-seqs 4 \
-  --max-num-batched-tokens 2048 \
-  --kv-cache-dtype fp8_ds_mla \
+  --kv-cache-dtype fp8 \
   --block-size 256 \
+  --max-model-len 262144 \
+  --max-num-seqs 8 \
+  --max-num-batched-tokens 8192 \
   --enable-prefix-caching \
-  --enable-chunked-prefill \
+  --tokenizer-mode deepseek_v4 \
   --trust-remote-code \
-  --enable-auto-tool-choice \
   --tool-call-parser deepseek_v4 \
-  --reasoning-parser deepseek_v4
+  --enable-auto-tool-choice \
+  --reasoning-parser deepseek_v4 \
+  --reasoning-config '{"reasoning_parser":"deepseek_v4","reasoning_start_str":"","reasoning_end_str":""}' \
+  --default-chat-template-kwargs.thinking=true \
+  --default-chat-template-kwargs.reasoning_effort=high \
+  --moe-backend b12x \
+  --linear-backend b12x \
+  --attention-backend B12X \
+  --max-cudagraph-capture-size 48 \
+  --compilation-config '{"cudagraph_mode":"FULL_AND_PIECEWISE","custom_ops":["all"]}' \
+  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic","attention_backend":"B12X"}'
