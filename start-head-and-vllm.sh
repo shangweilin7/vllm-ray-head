@@ -57,7 +57,8 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --distributed-executor-backend ray \
   --tensor-parallel-size 2 \
   --gpu-memory-utilization 0.74 \
-  --kv-cache-dtype nvfp4_ds_mla \
+  --kv-cache-memory-bytes 7730941133 \
+  --kv-cache-dtype fp8_ds_mla \
   --block-size 256 \
   --max-model-len 262144 \
   --max-num-seqs 4 \
