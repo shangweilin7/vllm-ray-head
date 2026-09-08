@@ -49,7 +49,7 @@ while True:
     time.sleep(5)
 PY
 
-printf '%s\n' '[4/4] Starting eugr B12X vLLM (DeepSeek V4 Flash 0731, TP=2, DSpark)...'
+printf '%s\n' '[4/4] Starting eugr B12X vLLM (DeepSeek V4 Flash 0731, TP=2, DSpark OFF)...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
@@ -75,6 +75,10 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --moe-backend b12x \
   --linear-backend b12x \
   --attention-backend B12X \
-  --max-cudagraph-capture-size 48 \
-  --compilation-config '{"cudagraph_mode":"FULL_AND_PIECEWISE","custom_ops":["all"]}' \
-  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic","attention_backend":"B12X"}'
+  --enforce-eager
+# ---------------------------------------------------------------------------
+# DSpark is DISABLED for the A/B memory comparison (same version, same fixed
+# KV budget: kv-cache-memory-bytes 7730941133 = 7.2 GiB).
+# To re-enable DSpark, add this as the final flag (remove the trailing
+# backslash from --enforce-eager above):
+#   --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic","attention_backend":"B12X"}'
