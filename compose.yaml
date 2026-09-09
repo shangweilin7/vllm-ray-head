@@ -1,10 +1,12 @@
 name: vllm-ray-head
 
-# eugr DGX-Spark optimized vLLM nightly (B12X build), pulled prebuilt.
-# Prebuilt image includes Ray 2.58.0 (required by --distributed-executor-backend ray).
+# Official vLLM v0.29.0 + Ray 2.58.0 (local build via ./Dockerfile — the official
+# vllm-openai image has no `ray` package). Mainline 0.29: TP=2 + expert-parallel,
+# all-auto backends (B12X fully dropped), DSpark speculative enabled.
 services:
   ray-head:
-    image: eugr/spark-vllm-b12x:latest
+    build: .
+    image: vllm-openai-ray:v0.29.0-ray2.58.0
     container_name: deepseek-v4-ray-head
     restart: unless-stopped
     network_mode: host
@@ -28,23 +30,7 @@ services:
       NCCL_SOCKET_IFNAME: ${ROCE_IFACE:?Set ROCE_IFACE to the RoCE NIC name}
       GLOO_SOCKET_IFNAME: ${ROCE_IFACE:?Set ROCE_IFACE to the RoCE NIC name}
       VLLM_HOST_IP: ${NODE_IP}
-      # eugr B12X serving-stack env (from recipes/deepseek-v4-flash-0731.yaml);
-      # TP=2/PP=1 so no VLLM_PP_LAYER_PARTITION.
-      CUTE_DSL_ARCH: sm_121a
-      VLLM_USE_AOT_COMPILE: "1"
-      VLLM_USE_BREAKABLE_CUDAGRAPH: "0"
-      VLLM_USE_MEGA_AOT_ARTIFACT: "1"
-      VLLM_MEMORY_PROFILE_INCLUDE_ATTN: "1"
-      VLLM_USE_FLASHINFER_SAMPLER: "1"
-      VLLM_USE_B12X_WO_PROJECTION: "1"
-      VLLM_USE_B12X_MHC: "1"
-      VLLM_USE_B12X_FP8_GEMM: "1"
-      VLLM_USE_B12X_MOE: "1"
-      VLLM_USE_B12X_SPARSE_INDEXER: "1"
-      VLLM_USE_V2_MODEL_RUNNER: "1"
-      VLLM_MOE_SKIP_PADDING: "0"
-      B12X_MLA_SM120_UNIFIED: "1"
-      B12X_MOE_FORCE_A8: "1"
+      # vLLM 0.29 mainline, all B12X env dropped.
       RAY_ADDRESS: ${HEAD_IP}:6379
       RAY_memory_monitor_refresh_ms: "0"
       PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True

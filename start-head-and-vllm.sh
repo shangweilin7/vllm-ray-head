@@ -49,13 +49,15 @@ while True:
     time.sleep(5)
 PY
 
-printf '%s\n' '[4/4] Starting eugr B12X vLLM (DeepSeek V4 Flash 0731, TP=2, DSpark)...'
+printf '%s\n' '[4/4] Starting vLLM 0.29 mainline (DeepSeek V4 Flash 0731, TP=2 + EP, DSpark)...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
   --port 8000 \
   --distributed-executor-backend ray \
   --tensor-parallel-size 2 \
+  --enable-expert-parallel \
+  --enable-chunked-prefill \
   --gpu-memory-utilization 0.75 \
   --kv-cache-dtype fp8_ds_mla \
   --block-size 256 \
@@ -68,12 +70,9 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --tool-call-parser deepseek_v4 \
   --enable-auto-tool-choice \
   --reasoning-parser deepseek_v4 \
-  --reasoning-config '{"reasoning_parser":"deepseek_v4","reasoning_start_str":"","reasoning_end_str":""}' \
   --default-chat-template-kwargs.thinking=true \
   --default-chat-template-kwargs.reasoning_effort=high \
-  --moe-backend b12x \
-  --linear-backend b12x \
-  --attention-backend B12X \
-  --max-cudagraph-capture-size 48 \
-  --compilation-config '{"cudagraph_mode":"FULL_AND_PIECEWISE","custom_ops":["all"]}' \
-  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic","attention_backend":"B12X"}'
+  --moe-backend auto \
+  --linear-backend auto \
+  --attention-backend auto \
+  --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic"}'
