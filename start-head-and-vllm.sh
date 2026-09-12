@@ -71,7 +71,7 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --enable-auto-tool-choice \
   --reasoning-parser deepseek_v4 \
   --default-chat-template-kwargs.thinking=true \
-  --default-chat-template-kwargs.reasoning_effort=high \
+  --default-chat-template-kwargs.reasoning_effort=low \
   --moe-backend auto \
   --linear-backend auto \
   --attention-backend auto \
