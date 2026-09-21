@@ -56,11 +56,11 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --port 8000 \
   --distributed-executor-backend ray \
   --tensor-parallel-size 2 \
-  --gpu-memory-utilization 0.75 \
+  --gpu-memory-utilization 0.80 \
   --kv-cache-dtype fp8_ds_mla \
   --block-size 256 \
-  --max-model-len 200000 \
-  --max-num-seqs 3 \
+  --max-model-len 262144 \
+  --max-num-seqs 4 \
   --max-num-batched-tokens 4096 \
   --enable-prefix-caching \
   --tokenizer-mode deepseek_v4 \
