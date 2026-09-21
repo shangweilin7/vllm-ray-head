@@ -50,7 +50,9 @@ services:
       PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
     volumes:
       - ${HOST_HOME:?Set HOST_HOME to this host's home directory}/.cache/huggingface:/root/.cache/huggingface
-      - ${HOST_HOME:?Set HOST_HOME to this host's home directory}/vllm-cache:/root/.cache/vllm
+      # vLLM runtime cache lives inside this repo dir (gitignored, ./vllm-cache),
+      # so the cache travels with the project and no longer sits in $HOME.
+      - ./vllm-cache:/root/.cache/vllm
       - ./start-head-and-vllm.sh:/usr/local/bin/start-head-and-vllm.sh:ro
     entrypoint:
       - /usr/local/bin/start-head-and-vllm.sh
