@@ -61,7 +61,7 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --block-size 256 \
   --max-model-len 262144 \
   --max-num-seqs 4 \
-  --max-num-batched-tokens 4096 \
+  --max-num-batched-tokens 8192 \
   --enable-prefix-caching \
   --tokenizer-mode deepseek_v4 \
   --trust-remote-code \
