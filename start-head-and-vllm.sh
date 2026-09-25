@@ -117,5 +117,5 @@ exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --linear-backend b12x \
   --attention-backend B12X \
   --max-cudagraph-capture-size 48 \
-  --compilation-config '{"cudagraph_mode":"FULL_AND_PIECEWISE","custom_ops":["all"]}' \
+  --compilation-config '{"cudagraph_mode":"FULL_DECODE_ONLY","custom_ops":["all"]}' \
   --speculative-config '{"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"probabilistic","attention_backend":"B12X"}'
