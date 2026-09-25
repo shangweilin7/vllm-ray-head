@@ -2,14 +2,16 @@
 set -euo pipefail
 
 HEAD_ADDRESS="${HEAD_IP}:6379"
+# Shared by the startup memory gate and `vllm serve`.
+GPU_MEMORY_UTILIZATION=0.80
 : "${NODE_IP:?NODE_IP must be set}"
 : "${HEAD_IP:?HEAD_IP must be set}"
 : "${ROCE_IFACE:?ROCE_IFACE must be set}"
 
-printf '%s\n' '[1/4] Cleaning stale Ray session...'
+printf '%s\n' '[1/5] Cleaning stale Ray session...'
 ray stop --force >/dev/null 2>&1 || true
 
-printf '[2/4] Starting Ray head at %s...\n' "${HEAD_ADDRESS}"
+printf '[2/5] Starting Ray head at %s...\n' "${HEAD_ADDRESS}"
 ray start \
   --head \
   --node-ip-address="${NODE_IP}" \
@@ -19,7 +21,7 @@ ray start \
   --num-cpus=20 \
   --num-gpus=1
 
-printf '%s\n' '[3/4] Waiting for the second Ray worker...'
+printf '%s\n' '[3/5] Waiting for the second Ray worker...'
 python3 - <<'PY'
 import os
 import time
@@ -49,14 +51,54 @@ while True:
     time.sleep(5)
 PY
 
-printf '%s\n' '[4/4] Starting eugr B12X vLLM (DeepSeek V4 Flash 0731, TP=2, DSpark)...'
+printf '[4/5] Waiting for >= %s of unified memory to be available...\n' "${GPU_MEMORY_UTILIZATION}"
+# vLLM rejects startup when MemAvailable (UMA) < total * gpu_memory_utilization.
+# Crashing here restarts the container, which replaces the Ray GCS session and
+# knocks the worker raylet out ("GCS returned an authentication error").
+# Wait in place instead so the Ray cluster stays intact.
+python3 - "${GPU_MEMORY_UTILIZATION}" <<'PY'
+import sys
+import time
+
+utilization = float(sys.argv[1])
+headroom_gib = 1.0
+last_report = 0.0
+
+
+def meminfo_gib(key: str) -> float:
+    with open("/proc/meminfo") as f:
+        for line in f:
+            if line.startswith(key + ":"):
+                return int(line.split()[1]) / 1024 / 1024
+    raise KeyError(key)
+
+
+total = meminfo_gib("MemTotal")
+required = total * utilization + headroom_gib
+while True:
+    available = meminfo_gib("MemAvailable")
+    if available >= required:
+        print(f"Memory ready: available={available:.2f} GiB >= required={required:.2f} GiB", flush=True)
+        break
+    now = time.time()
+    if now - last_report >= 60:
+        print(
+            f"Waiting for memory: available={available:.2f} GiB < required={required:.2f} GiB "
+            "(check ComfyUI / other GPU workloads)",
+            flush=True,
+        )
+        last_report = now
+    time.sleep(10)
+PY
+
+printf '%s\n' '[5/5] Starting eugr B12X vLLM (DeepSeek V4 Flash 0731, TP=2, DSpark)...'
 exec vllm serve deepseek-ai/DeepSeek-V4-Flash-0731 \
   --served-model-name deepseek-v4-flash-0731 \
   --host 0.0.0.0 \
   --port 8000 \
   --distributed-executor-backend ray \
   --tensor-parallel-size 2 \
-  --gpu-memory-utilization 0.80 \
+  --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}" \
   --kv-cache-dtype fp8_ds_mla \
   --block-size 256 \
   --max-model-len 262144 \
