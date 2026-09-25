@@ -53,6 +53,13 @@ services:
       # vLLM runtime cache lives inside this repo dir (gitignored, ./vllm-cache),
       # so the cache travels with the project and no longer sits in $HOME.
       - ./vllm-cache:/root/.cache/vllm
+      # JIT/autotune caches must survive container recreation; otherwise
+      # b12x/Triton/TileLang recompile on every recreate (~7-10 min startup).
+      - ./compile-cache/b12x:/root/.cache/b12x
+      - ./compile-cache/triton:/root/.triton
+      - ./compile-cache/tilelang:/root/.tilelang
+      - ./compile-cache/torch_extensions:/root/.cache/torch_extensions
+      - ./compile-cache/flashinfer:/root/.cache/flashinfer
       - ./start-head-and-vllm.sh:/usr/local/bin/start-head-and-vllm.sh:ro
     entrypoint:
       - /usr/local/bin/start-head-and-vllm.sh

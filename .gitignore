@@ -2,4 +2,5 @@
 
 # vLLM runtime cache
 vllm-cache/
+compile-cache/
 nhf-cache/
