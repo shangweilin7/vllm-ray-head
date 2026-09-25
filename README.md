@@ -1,7 +1,7 @@
 # vllm-ray-head — DeepSeek V4 Flash 0731 雙節點 vLLM + Ray 部署（GX10-1 / Head + API）
 
 > 本文件只講**操作**：啟動、重啟、注意事項、debug。
-> 實際設定檔（`compose.yaml`、`start-head-and-vllm.sh`、`Dockerfile`）以 repo 內檔案為準，這裡不重複貼內容。
+> 實際設定檔（`compose.yaml`、`start-head-and-vllm.sh`）以 repo 內檔案為準，這裡不重複貼內容。
 
 本 repo 是 GX10-1 的部署（Ray Head + vLLM API）。另一台 GX10-2 為 Ray Worker，對應 repo `~/vllm-ray-worker`。
 
@@ -25,7 +25,6 @@
 
 - `compose.yaml` — head service `ray-head`：eugr image、host network、`gpus: all`、healthcheck（`:8000`）、entrypoint 指向 `start-head-and-vllm.sh`、掛載 HF / vLLM 快取。
 - `start-head-and-vllm.sh` — entrypoint：`ray stop` → `ray start --head` → 等待第二節點（2 nodes / 2 GPUs）→ `exec vllm serve`（含 B12X + DSpark flags）。
-- `Dockerfile` — 目前使用預拉好 image，通常不需要 build。
 - `patches/` — eugr B12X / SM121 相關 patch（僅供 future build 參考）。
 
 ## 啟動
@@ -70,7 +69,7 @@ curl -fsS http://127.0.0.1:8000/v1/models
 |---|---|---|
 | `start-head-and-vllm.sh` 的 vLLM 參數 | `docker compose up -d --force-recreate ray-head` | 否（bind-mount，腳本會重跑） |
 | `.env` / `compose.yaml`（PP、IP、RoCE、volume…） | `docker compose up -d --force-recreate ray-head` | 否 |
-| `Dockerfile` / 想重建 image | `docker compose build`（懷疑 cache 問題才 `--no-cache`），再 `--force-recreate` | 是 |
+| 更新 image | `docker compose pull ray-head`（worker 同步 pull 同一 digest），再 `--force-recreate` | 否（pull 預建 image） |
 | 只重啟整個服務（乾淨） | `docker compose down --remove-orphans` → 依「啟動」順序重啟 | 視情況 |
 
 > 改了 IP / RoCE / topology 時，最穩做法是**兩邊都 down**，再依 Worker → Head 順序重建，避免舊 Ray session / GPU actor 殘留。
